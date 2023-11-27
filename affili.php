@@ -1,7 +1,8 @@
 <?php
 
-if (!defined('_PS_VERSION_'))
+if (!defined('_PS_VERSION_')) {
     exit;
+}
 
 class Affili extends Module
 {
@@ -12,24 +13,21 @@ class Affili extends Module
         $this->version = '1.0.0';
         $this->author = 'Affili';
         $this->need_instance = 1;
-
-        $this->ps_versions_compliancy = [
-            'min' => '1.6',
-            'max' => '1.7.99',
-        ];
+        $this->ps_versions_compliancy = [ 'min' => '1.6', 'max' => _PS_VERSION_ ];
         $this->bootstrap = true;
+        $this->displayName = 'Affili';
+        $this->description = 'Integrate the Affili tracking script in your shop';
+        $this->confirmUninstall = 'Are you sure you want to delete Affili from your shop?';
 
         parent::__construct();
-
-        $this->displayName = $this->l('Affili');
-        $this->description = $this->l('Integrate the Affili tracking script in your shop');
-
-        $this->confirmUninstall = $this->l('Are you sure you want to delete Affili from your shop?');
     }
 
     public function install()
     {
-        return (parent::install() && $this->registerHook('displayHeader') && $this->registerHook('displayOrderConfirmation'));
+        return parent::install() 
+            && $this->registerHook('displayHeader') 
+            && $this->registerHook('displayOrderConfirmation')
+        ;
     }
 
     public function uninstall()
@@ -41,6 +39,13 @@ class Affili extends Module
 
     public function hookDisplayHeader()
     {
+        /*
+         * Verify if this module is active
+         */
+        if (!$this->active) {
+            return;
+        }
+
         if (!$this->context->smarty->getTemplateVars('is_order')) {
             $this->context->smarty->assign('is_order', false);
 
@@ -50,6 +55,13 @@ class Affili extends Module
 
     public function hookDisplayOrderConfirmation($params)
     {
+        /*
+         * Verify if this module is active
+         */
+        if (!$this->active) {
+            return;
+        }
+
         // Setting parameters
         $order = isset($params['order']) ? $params['order'] : (
             isset($params['objOrder']) ? $params['objOrder'] : null
